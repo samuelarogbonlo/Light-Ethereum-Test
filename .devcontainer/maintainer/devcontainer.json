@@ -1,0 +1,16 @@
+{
+    "name": "maintainer",
+    "dockerFile": "Dockerfile",
+    "remoteUser": "root",
+    "containerEnv": {
+        "AWS_ACCESS_KEY_ID": "${localEnv:AWS_ACCESS_KEY_ID}",
+        "AWS_SECRET_ACCESS_KEY": "${localEnv:AWS_SECRET_ACCESS_KEY}",
+        "AWS_DEFAULT_REGION": "${localEnv:AWS_DEFAULT_REGION}",
+        "AWS_REGION": "${localEnv:AWS_REGION}"
+    },
+    "mounts": [
+        "source=${localEnv:HOME}/.aws,target=/root/.aws,type=bind",
+        "source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind",
+        "source=${localEnv:HOME}/.gitconfig,target=/root/.gitconfig,type=bind"
+    ]
+}

@@ -1,0 +1,11 @@
+---
+- name: Setup Ethereum Light Client on Ubuntu EC2 Instance
+  hosts: all
+  become: yes
+  remote_user: ubuntu
+  vars:
+    eth_rpc_url: https://eth-mainnet.g.alchemy.com/v2/demo
+
+  # I4
+  tasks:
+    
