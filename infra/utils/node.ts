@@ -3,7 +3,7 @@ import { Instance } from "@cdktf/provider-aws/lib/instance";
 import { SecurityGroup } from "@cdktf/provider-aws/lib/security-group";
 import { Subnet } from "@cdktf/provider-aws/lib/subnet";
 import { Resource } from "@cdktf/provider-null/lib/resource";
-import { Size } from "./size";
+import { Size, sizeToInstanceType, sizeToStorageSize } from "./size";
 import {
     SecurityGroupIngress
 } from "@cdktf/provider-aws/lib/security-group";
@@ -81,17 +81,18 @@ export class Node extends Scope {
             provider: awsProvider,
         });
 
-        // I5 - Ansible Provisioner
+        // Corrected provisioner configuration
         this.ansibleProvisioner = new Resource(this, "ansible-provisioner", {
             dependsOn: [this.instance],
             triggers: {
                 instance_id: this.instance.id,
             },
-            provisioner: [{
-                localExec: {
+            provisioners: [
+                {
+                    type: 'local-exec',
                     command: `ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i '${this.instance.publicIp},' --private-key=${privateKeyPath} -u ubuntu ${playbookPath}`,
-                }
-            }]
+                },
+            ],
         });
     }
 }

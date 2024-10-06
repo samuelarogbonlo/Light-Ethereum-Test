@@ -7,16 +7,15 @@ import {
 import * as path from "path";
 import {
     NullProvider
-  } from "@cdktf/provider-null/lib/provider";
-  import {
+} from "@cdktf/provider-null/lib/provider";
+import {
     RandomProvider
-  } from "@cdktf/provider-random/lib/provider";
+} from "@cdktf/provider-random/lib/provider";
 import {
     TerraformStack
 } from "cdktf";
 import { Construct } from "constructs";
 
-// I6
 export class EthLightClient extends Scope {
 
     public readonly nodeInstance: Node;
@@ -26,10 +25,17 @@ export class EthLightClient extends Scope {
         super(scope, name, scope.config);
 
         this.nodeInstance = new Node(this, name, {
-            compute: Size.md,
-            storage: Size.lg,
+            compute: Size.xs, // Free Tier eligible
+            storage: Size.xs, // 8 GiB storage
             playbookPath: path.join(__dirname, "light-client.yml"),
             securityGroupIngress: [
+                // I6 - Expose port 8545
+                {
+                    protocol: "tcp",
+                    fromPort: 8545,
+                    toPort: 8545,
+                    cidrBlocks: ["0.0.0.0/0"]
+                }
             ]
         });
 
