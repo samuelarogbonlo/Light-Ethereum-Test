@@ -12,40 +12,33 @@ import { RouteTableAssociation } from "@cdktf/provider-aws/lib/route-table-assoc
 import * as os from "os";
 import { readFileSync } from "fs";
 
-
 export type ScopeConfig = {
-    region : Region
+    region: Region;
 };
 
 export type AwsScopeMembers = {
-    provider?: AwsProvider,
-    vpc?: AwsVpc,
-    lastAllocatedCidr?: string,
-    internetGateway?: InternetGateway,
-}
+    provider?: AwsProvider;
+    vpc?: AwsVpc;
+    lastAllocatedCidr?: string;
+    internetGateway?: InternetGateway;
+};
 
 export class Scope extends Construct {
-
-    name : string;
-    config : ScopeConfig;
+    name: string;
+    config: ScopeConfig;
     public static readonly startingCidr: string = "172.16.0.0/24";
 
-    constructor(
-        scope: Construct,
-        name: string,
-        config : ScopeConfig
-    ) {
+    constructor(scope: Construct, name: string, config: ScopeConfig) {
         super(scope, name);
         this.config = config;
         this.name = name;
 
         this.initialize();
-
     }
 
     /**
      * Gets the context for the current scope.
-     * @returns 
+     * @returns
      */
     private getContext(): any {
         return this.node.tryGetContext(this.name);
@@ -56,8 +49,7 @@ export class Scope extends Construct {
     }
 
     public initialize(): void {
-        if (!this.node.tryGetContext(this.name))
-            this.node.setContext(this.name, {});
+        if (!this.node.tryGetContext(this.name)) this.node.setContext(this.name, {});
     }
 
     public getAwsRegion(): string {
@@ -65,10 +57,7 @@ export class Scope extends Construct {
     }
 
     public getAwsProviderAlias(): string {
-        return [
-            this.getRegion(),
-            this.name
-        ].join("-");
+        return [this.getRegion(), this.name].join("-");
     }
 
     public getAwsVpcAlias(): string {
@@ -76,51 +65,40 @@ export class Scope extends Construct {
     }
 
     private _getAwsProvider(): AwsProvider | undefined {
-        return ((
-            this.getContext()[this.getAwsProviderAlias()]
-        ) as AwsScopeMembers | undefined)?.provider;
+        return (this.getContext()[this.getAwsProviderAlias()] as AwsScopeMembers | undefined)
+            ?.provider;
     }
 
     private _getAwsVpc(): AwsVpc | undefined {
-
-        return ((
-            this.getContext()[this.getAwsVpcAlias()]
-        ) as AwsScopeMembers | undefined)?.vpc;
-
+        return (this.getContext()[this.getAwsVpcAlias()] as AwsScopeMembers | undefined)?.vpc;
     }
 
     private _getInternetGateway(): InternetGateway | undefined {
-
-        return ((
-            this.getContext()[this.getAwsVpcAlias()]
-        ) as AwsScopeMembers | undefined)?.internetGateway;
-
+        return (this.getContext()[this.getAwsVpcAlias()] as AwsScopeMembers | undefined)
+            ?.internetGateway;
     }
 
     public getAwsProvider(): AwsProvider {
-
         const existingProvider = this._getAwsProvider();
         if (existingProvider) return existingProvider;
 
         const alias = this.getAwsProviderAlias();
         const provider = new AwsProvider(this, `${alias}-provider`, {
             region: this.getAwsRegion(),
-            alias
+            alias,
         });
 
         this.getContext()[alias] = {
             provider,
             vpc: this._getAwsVpc(),
             lastAllocatedCidr: this.getLastAllocatedCidr(),
-            internetGateway: this._getInternetGateway()
+            internetGateway: this._getInternetGateway(),
         } as AwsScopeMembers;
 
         return provider;
-
     }
 
     public getAwsVpc(): AwsVpc {
-
         const existingVpc = this._getAwsVpc();
         if (existingVpc) return existingVpc;
 
@@ -128,17 +106,18 @@ export class Scope extends Construct {
 
         const alias = this.getAwsVpcAlias();
         const vpc = new AwsVpc(this, `${alias}-vpc`, {
-            cidrBlock: "172.16.0.0/2", // I1
+            cidrBlock: "172.16.0.0/16", // Corrected CIDR block (I1)
             provider,
             tags: {
-                Name: alias
+                Name: alias,
             },
             enableDnsHostnames: true,
-            enableDnsSupport: true
+            enableDnsSupport: true,
         });
+
         const internetGateway = new InternetGateway(this, `${alias}-internet-gateway`, {
             vpcId: vpc.id,
-            provider
+            provider,
         });
 
         this.getContext()[alias] = {
@@ -157,32 +136,27 @@ export class Scope extends Construct {
     }
 
     private _getLastAllocatedCidr(): string | undefined {
-        return ((
-            this.getContext()[this.getAwsVpcAlias()]
-        ) as AwsScopeMembers | undefined)?.lastAllocatedCidr;
+        return (this.getContext()[this.getAwsVpcAlias()] as AwsScopeMembers | undefined)
+            ?.lastAllocatedCidr;
     }
 
     private _setLastAllocatedCidr(cidr: string): void {
-
         const alias = this.getAwsVpcAlias();
         this.getContext()[alias] = {
             provider: this._getAwsProvider(),
             vpc: this._getAwsVpc(),
             lastAllocatedCidr: cidr,
-            internetGateway: this._getInternetGateway()
+            internetGateway: this._getInternetGateway(),
         };
-
     }
 
     public getLastAllocatedCidr(): string {
-
         const existingCidr = this._getLastAllocatedCidr();
         if (existingCidr) return existingCidr;
 
         this._setLastAllocatedCidr(Scope.startingCidr);
 
         return Scope.startingCidr;
-
     }
 
     private _nextCidrBlock(): string {
@@ -197,11 +171,10 @@ export class Scope extends Construct {
 
         const newCidr = ipParts.join('.');
         this._setLastAllocatedCidr(newCidr);
-        return newCidr;
+        return `${newCidr}/24`; // Ensure the subnet mask is included
     }
 
     public getNextAvailableSubnet(availabilityZone: string = "a"): AwsSubnet {
-
         const cidr = this._nextCidrBlock();
         const alias = `${this.getAwsVpcAlias()}-${cidr.split(".").join("-")}`;
         const awsProvider = this.getAwsProvider();
@@ -213,21 +186,34 @@ export class Scope extends Construct {
             vpcId: vpc.id,
             provider: awsProvider,
             mapPublicIpOnLaunch: true,
-            availabilityZone: `${this.getAwsRegion()}${availabilityZone}`
+            availabilityZone: `${this.getAwsRegion()}${availabilityZone}`,
         });
 
         const routeTable = new RouteTable(this, `${alias}-route-table`, {
             vpcId: vpc.id,
-            provider: awsProvider
+            provider: awsProvider,
         });
 
-        // I2
-       
+        // Add a route to the internet gateway (I2)
+        new Route(this, `${alias}-route`, {
+            routeTableId: routeTable.id,
+            destinationCidrBlock: '0.0.0.0/0',
+            gatewayId: internetGateway.id,
+            provider: awsProvider,
+        });
+
+        // Associate the route table with the subnet (I2)
+        new RouteTableAssociation(this, `${alias}-route-table-association`, {
+            subnetId: subnet.id,
+            routeTableId: routeTable.id,
+            provider: awsProvider,
+        });
+
         return subnet;
     }
 
     public getPubKey(name: string): string {
-        const location = `${this.getPrivateKeyLocation(name)}.pub`
+        const location = `${this.getPrivateKeyLocation(name)}.pub`;
         return readFileSync(location, "utf-8");
     }
 
@@ -235,5 +221,4 @@ export class Scope extends Construct {
         const homedir = os.homedir();
         return `${homedir}/.ssh/mvlbs/${name}`;
     }
-
 }

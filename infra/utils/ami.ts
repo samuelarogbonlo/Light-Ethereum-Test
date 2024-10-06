@@ -38,7 +38,10 @@ const amiMapping: AmiMapping = {
 };
 
 // Function to get AMI ID by region for amd64 architecture
-export function getAmiIdByRegion(region: string): string | undefined {
-    // P1
-    return amiMapping[region];
+export function getAmiIdByRegion(region: string): string {
+    const amiId = amiMapping[region];
+    if (!amiId) {
+        throw new Error(`No AMI ID found for region: ${region}`);
+    }
+    return amiId;
 }

@@ -10,26 +10,26 @@ export enum Size {
 export function sizeToInstanceType(size: Size): string {
     switch (size) {
         case Size.xs:
-            return "t3.micro";
+            return "t2.micro"; // Free Tier eligible
         case Size.sm:
-            return "t3.medium";
+            return "t3.small";
         case Size.md:
-            return "t3.large";
+            return "t3.medium";
         case Size.lg:
-            return "t3.xlarge";
+            return "t3.large";
         case Size.xl:
-            return "t3.2xlarge";
+            return "t3.xlarge";
         case Size.xxl:
-            return "c5.4xlarge";
+            return "t3.2xlarge";
         default:
-            return "t3.micro";
+            return "t2.micro";
     }
 }
 
 export function sizeToStorageSize(size: Size): number {
     switch (size) {
         case Size.xs:
-            return 4; // GiB
+            return 8; // GiB, Free Tier eligible
         case Size.sm:
             return 16; // GiB
         case Size.md:

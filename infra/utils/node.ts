@@ -2,8 +2,8 @@ import { KeyPair } from "@cdktf/provider-aws/lib/key-pair";
 import { Instance } from "@cdktf/provider-aws/lib/instance";
 import { SecurityGroup } from "@cdktf/provider-aws/lib/security-group";
 import { Subnet } from "@cdktf/provider-aws/lib/subnet";
-import { resource } from "@cdktf/provider-null";
-import { sizeToInstanceType, sizeToStorageSize, Size } from "./size";
+import { Resource } from "@cdktf/provider-null/lib/resource";
+import { Size } from "./size";
 import {
     SecurityGroupIngress
 } from "@cdktf/provider-aws/lib/security-group";
@@ -11,19 +11,18 @@ import { Scope } from "./scope";
 import { getAmiIdByRegion } from "./ami";
 
 export type NodeConfig = {
-    compute : Size,
-    storage : Size,
-    playbookPath : string,
-    securityGroupIngress : SecurityGroupIngress[]
-}
+    compute: Size;
+    storage: Size;
+    playbookPath: string;
+    securityGroupIngress: SecurityGroupIngress[];
+};
 
 export class Node extends Scope {
-
     public readonly keyPair: KeyPair;
     public readonly securityGroup: SecurityGroup;
     public readonly subnet: Subnet;
     public readonly instance: Instance;
-    public readonly ansibleProvisioner: resource.Resource;
+    public readonly ansibleProvisioner: Resource;
 
     constructor(
         scope: Scope,
@@ -39,7 +38,6 @@ export class Node extends Scope {
         const awsProvider = this.getAwsProvider();
         const vpc = this.getAwsVpc();
         this.subnet = this.getNextAvailableSubnet();
-        // const playbookContent = fs.readFileSync(playbook, 'utf-8');
 
         const publicKey = this.getPubKey("aws_main");
         const privateKeyPath = this.getPrivateKeyLocation("aws_main");
@@ -57,8 +55,6 @@ export class Node extends Scope {
             description: `Security group for ${name} instance`,
             ingress: [
                 { protocol: "tcp", fromPort: 22, toPort: 22, cidrBlocks: ["0.0.0.0/0"] },
-                { protocol: "tcp", fromPort: 80, toPort: 80, cidrBlocks: ["0.0.0.0/0"] },
-                { protocol: "tcp", fromPort: 443, toPort: 443, cidrBlocks: ["0.0.0.0/0"] },
                 ...securityGroupIngress
             ],
             egress: [
@@ -85,9 +81,17 @@ export class Node extends Scope {
             provider: awsProvider,
         });
 
-
-        // I5
-
+        // I5 - Ansible Provisioner
+        this.ansibleProvisioner = new Resource(this, "ansible-provisioner", {
+            dependsOn: [this.instance],
+            triggers: {
+                instance_id: this.instance.id,
+            },
+            provisioner: [{
+                localExec: {
+                    command: `ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i '${this.instance.publicIp},' --private-key=${privateKeyPath} -u ubuntu ${playbookPath}`,
+                }
+            }]
+        });
     }
-
 }
