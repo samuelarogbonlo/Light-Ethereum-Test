@@ -160,29 +160,30 @@ export class Scope extends Construct {
     }
 
     private _nextCidrBlock(): string {
-        const ipParts = this.getLastAllocatedCidr().split('.');
-        const thirdOctet = parseInt(ipParts[2]);
+        // Only extract the first three octets to construct the new CIDR block
+        const [first, second, third] = this.getLastAllocatedCidr().split(/[./]/);
+        let thirdOctet = parseInt(third);
 
         if (thirdOctet < 255) {
-            ipParts[2] = (thirdOctet + 1).toString();
+            thirdOctet += 1;
         } else {
             throw new Error("CIDR allocation exceeded for this VPC.");
         }
 
-        const newCidr = ipParts.join('.');
+        const newCidr = `${first}.${second}.${thirdOctet}.0/24`;
         this._setLastAllocatedCidr(newCidr);
-        return `${newCidr}/24`; // Ensure the subnet mask is included
+        return newCidr; // Already includes /24
     }
 
     public getNextAvailableSubnet(availabilityZone: string = "a"): AwsSubnet {
-        const cidr = this._nextCidrBlock();
+        const cidr = this._nextCidrBlock(); // e.g., "172.16.1.0/24"
         const alias = `${this.getAwsVpcAlias()}-${cidr.split(".").join("-")}`;
         const awsProvider = this.getAwsProvider();
         const vpc = this.getAwsVpc();
         const internetGateway = this.getAwsInternetGateway();
 
         const subnet = new AwsSubnet(this, `${alias}-subnet`, {
-            cidrBlock: cidr,
+            cidrBlock: cidr, // Use the CIDR as returned, e.g., "172.16.1.0/24"
             vpcId: vpc.id,
             provider: awsProvider,
             mapPublicIpOnLaunch: true,
@@ -194,7 +195,7 @@ export class Scope extends Construct {
             provider: awsProvider,
         });
 
-        // Add a route to the internet gateway (I2)
+        // I2 - Add a route to the internet gateway
         new Route(this, `${alias}-route`, {
             routeTableId: routeTable.id,
             destinationCidrBlock: '0.0.0.0/0',
@@ -202,7 +203,7 @@ export class Scope extends Construct {
             provider: awsProvider,
         });
 
-        // Associate the route table with the subnet (I2)
+        // Associate the route table with the subnet
         new RouteTableAssociation(this, `${alias}-route-table-association`, {
             subnetId: subnet.id,
             routeTableId: routeTable.id,

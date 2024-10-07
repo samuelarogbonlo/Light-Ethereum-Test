@@ -81,7 +81,7 @@ export class Node extends Scope {
             provider: awsProvider,
         });
 
-        // Corrected provisioner configuration
+        // Corrected provisioner configuration with properly quoted playbook path
         this.ansibleProvisioner = new Resource(this, "ansible-provisioner", {
             dependsOn: [this.instance],
             triggers: {
@@ -90,7 +90,7 @@ export class Node extends Scope {
             provisioners: [
                 {
                     type: 'local-exec',
-                    command: `ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i '${this.instance.publicIp},' --private-key=${privateKeyPath} -u ubuntu ${playbookPath}`,
+                    command: `ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i '${this.instance.publicIp},' --private-key=${privateKeyPath} -u ubuntu "${playbookPath}"`,
                 },
             ],
         });

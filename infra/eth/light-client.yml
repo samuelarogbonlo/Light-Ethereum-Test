@@ -1,50 +1,123 @@
 ---
-- name: Install and configure Ethereum Light Client
+- name: Install and Configure Helios Ethereum Light Client
   hosts: all
   become: yes
+  vars:
+    # Helios Configuration Variables
+    helios_network: "holesky"
+    helios_consensus_rpc: "http://testing.holesky.beacon-api.nimbus.team"
+    helios_execution_rpc: "https://ethereum-holesky.g.allthatnode.com "
+    helios_checkpoint: "0x60409a013161b33c8c68c6183c7753e779ec6c24be2f3c50c6036c30e13b34a6"
+    helios_rpc_port: 8545
+    helios_rpc_bind_ip: "0.0.0.0"
+    helios_data_dir: "/var/lib/helios"
+    helios_service_name: "helios"
+
   tasks:
-    - name: Update and install dependencies
+    # 1. Update and Upgrade Apt Packages
+    - name: Update and upgrade apt packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+        force: yes
+
+    # 2. Install Necessary Packages
+    - name: Install necessary packages
       apt:
         name:
-          - software-properties-common
-          - build-essential
-          - git
           - curl
           - wget
-        state: present
-        update_cache: yes
-
-    - name: Add Ethereum PPA
-      apt_repository:
-        repo: 'ppa:ethereum/ethereum'
+          - unzip
         state: present
 
-    - name: Install geth
-      apt:
-        name: geth
+    # 3. Download Helios Installer Script
+    - name: Download Helios installer script
+      get_url:
+        url: "https://raw.githubusercontent.com/a16z/helios/master/heliosup/install"
+        dest: "/tmp/heliosup_install.sh"
+        mode: '0755'
+
+    # 4. Run Helios Installer Script
+    - name: Run Helios installer script
+      command: "bash /tmp/heliosup_install.sh && heliosup"
+      args:
+        creates: "/usr/local/bin/helios"
+
+    # 5. Ensure Helios Binary is in PATH
+    - name: Ensure Helios binary is in PATH
+      lineinfile:
+        path: /home/ubuntu/.bashrc
+        line: 'export PATH=$PATH:/home/ubuntu/.local/bin'
+        create: yes
         state: present
 
-    - name: Create systemd service for geth
+    # 6. Source .bashrc to Update PATH
+    - name: Source .bashrc to update PATH
+      shell: source /home/ubuntu/.bashrc
+      environment:
+        HOME: "/home/ubuntu"
+      args:  
+        executable: /bin/bash  
+
+    # 7. Verify Helios Installation
+    - name: Verify Helios installation
+      command: helios --version
+      register: helios_version
+
+    # 8. Print Helios Version
+    - name: Print Helios version
+      debug:
+        msg: "{{ helios_version.stdout }}"
+      when: helios_version.rc == 0
+
+    # 9. Create Data Directory for Helios
+    - name: Create data directory for Helios
+      file:
+        path: "{{ helios_data_dir }}"
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
+
+    # 10. Create Systemd Service File for Helios
+    - name: Create systemd service file for Helios
       copy:
-        dest: /etc/systemd/system/geth.service
+        dest: "/etc/systemd/system/{{ helios_service_name }}.service"
         content: |
           [Unit]
-          Description=Ethereum Go Client
+          Description=Helios Ethereum Light Client
           After=network.target
 
           [Service]
           Type=simple
-          User=root
-          ExecStart=/usr/bin/geth --syncmode light --http --http.addr 0.0.0.0 --http.port 8545 --http.api eth,net,web3
+          User=ubuntu
+          WorkingDirectory={{ helios_data_dir }}
+          ExecStart=/usr/local/bin/helios \
+            --network {{ helios_network }} \
+            --consensus-rpc {{ helios_consensus_rpc }} \
+            --execution-rpc {{ helios_execution_rpc }} \
+            --checkpoint {{ helios_checkpoint }} \
+            --rpc-port {{ helios_rpc_port }} \
+            --rpc-bind-ip {{ helios_rpc_bind_ip }} \
+            --data-dir {{ helios_data_dir }}
+          Restart=on-failure
+          RestartSec=10
+          LimitNOFILE=4096
 
           [Install]
           WantedBy=multi-user.target
       notify:
         - Reload systemd
 
-    - name: Enable and start geth service
+    # 11. Reload Systemd Daemon
+    - name: Reload systemd daemon
       systemd:
-        name: geth
+        daemon_reload: yes
+
+    # 12. Enable and Start Helios Service
+    - name: Enable and start Helios service
+      systemd:
+        name: "{{ helios_service_name }}"
         enabled: yes
         state: started
 
