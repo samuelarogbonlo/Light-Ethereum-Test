@@ -12,8 +12,8 @@
     helios_rpc_bind_ip: "0.0.0.0"
     helios_data_dir: "/var/lib/helios"
     helios_service_name: "helios"
-    helios_binary_path: "/home/ubuntu/.helios/bin/helios"  # Full path to heliosup binary
-
+    helios_binary_path: "/root/.helios/bin/helios"
+    heliosup_path: "/root/.helios/bin/heliosup"
   tasks:
     - name: Update and upgrade apt packages
       apt:
@@ -34,13 +34,8 @@
       args:
         executable: /bin/bash
 
-    - name: Source bashrc to load Helios binary into PATH
-      ansible.builtin.shell: "source /home/ubuntu/.bashrc && sleep 5"
-      args:
-        executable: /bin/bash
-
     - name: Run Helios installation script using full path
-      ansible.builtin.shell: "heliosup"
+      ansible.builtin.shell: "{{ heliosup_path }}"
       args:
         executable: /bin/bash
 
@@ -73,7 +68,7 @@
           Type=simple
           User=ubuntu
           WorkingDirectory={{ helios_data_dir }}
-          ExecStart=/home/ubuntu/.helios/bin/helios \
+          ExecStart={{ helios_binary_path }} \
             --network {{ helios_network }} \
             --fallback {{ helios_fall_back }} \
             --consensus-rpc {{ helios_consensus_rpc }} \
