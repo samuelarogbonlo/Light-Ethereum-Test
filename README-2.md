@@ -18,7 +18,7 @@ This project is to provide infrastructure as code (IaC) for an Ethereum Light Cl
 - MUST use Terraform CDK to define the infrastructure.
     - R1: What os will you use for the EC2 instance? Why?
     > **_Answer_**
-    > - I used Ubuntu 20.04 LTS. Most blockchain infrastructure and Ethereum-related software are optimized for Linux. Also, linux is highly customizable and secure which makes it ideal for automated setups, especially in DevOps and cloud environments
+    > - I used Ubuntu 20.04 LTS. because of its stability, long-term support (LTS), and robust performance in handling blockchain workloads. It offers compatibility with key Ethereum tools like Geth, Besu, and Prysm, which are used for node operation. 
 
     - R2: What instance type will you use? Why?
     > **_Answer_**
