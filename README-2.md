@@ -20,13 +20,11 @@ This project is to provide infrastructure as code (IaC) for an Ethereum Light Cl
     > - I used Ubuntu 20.04 LTS. Most blockchain infrastructure and Ethereum-related software are optimized for Linux. Also, linux is highly customizable and secure which makes it ideal for automated setups, especially in DevOps and cloud environments
 
     - R2: What instance type will you use? Why?
-
     > **_Answer_**
     > - I used t2.micro. It is the smallest instance type available on AWS and it is free tier eligible. It is suitable for testing and development purposes.
 
 - MUST use Ansible to provision the infrastructure.
     - R3: List the dependencies for the Ethereum Light Client that you will need to provision.
-
     > **_Answer_**
     > The dependencies are as follows:
     > - System packages like curl, wget, unzip.
@@ -39,7 +37,6 @@ This project is to provide infrastructure as code (IaC) for an Ethereum Light Cl
 
 - MAY use any Ethereum Light Client.
     - R4: What Ethereum Light Client will you use? Why?
-
     > **_Answer_**
     > - I used Helios Ethereum Light Client. It is a lightweight Ethereum Light Client that is easy to set up and use. It is also open-source and has a large community of developers. Also, many other Ethereum Light Clients options have deprecated or are not actively maintained. Helios allows for JSON-RPC exposure, fast syncing and operates in s trustless mode.
 
@@ -51,6 +48,7 @@ This project is to provide infrastructure as code (IaC) for an Ethereum Light Cl
 - MAY someday need to provide an observability solution.
     - R6: What observability solution would you use? Why?
     > **_Answer_**
+
     > The observability solution will include the following:
     > - **Prometheus:** Ideal for collecting metrics from both the system (EC2 instance) and the Helios client. It's lightweight, integrates well with cloud environments like AWS, and can monitor CPU, memory, and network usage alongside custom application metrics.
     > - **Grafana:** Provides a powerful, customizable dashboard for visualizing Prometheus metrics. It’s user-friendly and supports alerts, helping you monitor the performance and availability of the Ethereum Light Client in real-time.
@@ -58,8 +56,8 @@ This project is to provide infrastructure as code (IaC) for an Ethereum Light Cl
 
 - MAY someday need to provide a CI/CD pipeline for the infrastructure.
     - R7: What CI/CD pipeline would you use? Why?
-
     > **_Answer_**
+
     > The CI/CD pipeline recommendation setup will be as thus:
     > - **GitHub Actions:** Since the project likely resides in a GitHub repository, GitHub Actions provides seamless integration for automating testing, building, and deploying the Ethereum Light Client infrastructure. It supports a wide variety of workflows, including testing Ansible playbooks, deploying Terraform configurations, and integrating with AWS services.
     > - **Terraform Cloud:** It integrates well with the CDKTF to provision and manage your AWS resources, which of course will ensure consistency and scalability. It provides reliable state management for your infrastructure, avoiding issues like state file conflicts.
