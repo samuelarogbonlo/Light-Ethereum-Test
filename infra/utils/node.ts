@@ -47,6 +47,8 @@ export class Node extends Scope {
             provider: awsProvider
         });
 
+
+
         const ami = getAmiIdByRegion(awsProvider.region ?? 'us-east-1');
 
         // Define a security group for the instance
@@ -90,7 +92,7 @@ export class Node extends Scope {
             provisioners: [
                 {
                     type: 'local-exec',
-                    command: `ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i '${this.instance.publicIp},' --private-key=${privateKeyPath} -u ubuntu "${playbookPath}"`,
+                    command: `sleep 10s && ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i '${this.instance.publicIp},' --private-key=${privateKeyPath} -u ubuntu "${playbookPath}"`,
                 },
             ],
         });

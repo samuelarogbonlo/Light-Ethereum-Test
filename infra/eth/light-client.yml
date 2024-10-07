@@ -1,27 +1,26 @@
 ---
-- name: Install and Configure Helios Ethereum Light Client
+- name: Setup Ethereum Light Client on Ubuntu EC2 Instance
   hosts: all
   become: yes
   vars:
-    # Helios Configuration Variables
-    helios_network: "holesky"
-    helios_consensus_rpc: "http://testing.holesky.beacon-api.nimbus.team"
-    helios_execution_rpc: "https://ethereum-holesky.g.allthatnode.com "
+    helios_network: "mainnet"
+    helios_fall_back: "https://sync-mainnet.beaconcha.in"
+    helios_consensus_rpc: "https://www.lightclientdata.org"
+    helios_execution_rpc: "https://eth-mainnet.g.alchemy.com/v2/demo"
     helios_checkpoint: "0x60409a013161b33c8c68c6183c7753e779ec6c24be2f3c50c6036c30e13b34a6"
     helios_rpc_port: 8545
     helios_rpc_bind_ip: "0.0.0.0"
     helios_data_dir: "/var/lib/helios"
     helios_service_name: "helios"
+    helios_binary_path: "/home/ubuntu/.helios/bin/helios"  # Full path to heliosup binary
 
   tasks:
-    # 1. Update and Upgrade Apt Packages
     - name: Update and upgrade apt packages
       apt:
         update_cache: yes
         upgrade: dist
         force: yes
 
-    # 2. Install Necessary Packages
     - name: Install necessary packages
       apt:
         name:
@@ -30,47 +29,30 @@
           - unzip
         state: present
 
-    # 3. Download Helios Installer Script
-    - name: Download Helios installer script
-      get_url:
-        url: "https://raw.githubusercontent.com/a16z/helios/master/heliosup/install"
-        dest: "/tmp/heliosup_install.sh"
-        mode: '0755'
-
-    # 4. Run Helios Installer Script
     - name: Run Helios installer script
-      command: "bash /tmp/heliosup_install.sh && heliosup"
+      ansible.builtin.shell: "curl https://raw.githubusercontent.com/a16z/helios/master/heliosup/install | bash"
       args:
-        creates: "/usr/local/bin/helios"
+        executable: /bin/bash
 
-    # 5. Ensure Helios Binary is in PATH
-    - name: Ensure Helios binary is in PATH
-      lineinfile:
-        path: /home/ubuntu/.bashrc
-        line: 'export PATH=$PATH:/home/ubuntu/.local/bin'
-        create: yes
-        state: present
+    - name: Source bashrc to load Helios binary into PATH
+      ansible.builtin.shell: "source /home/ubuntu/.bashrc && sleep 5"
+      args:
+        executable: /bin/bash
 
-    # 6. Source .bashrc to Update PATH
-    - name: Source .bashrc to update PATH
-      shell: source /home/ubuntu/.bashrc
-      environment:
-        HOME: "/home/ubuntu"
-      args:  
-        executable: /bin/bash  
+    - name: Run Helios installation script using full path
+      ansible.builtin.shell: "heliosup"
+      args:
+        executable: /bin/bash
 
-    # 7. Verify Helios Installation
     - name: Verify Helios installation
-      command: helios --version
+      command: "{{ helios_binary_path }} --version"
       register: helios_version
 
-    # 8. Print Helios Version
     - name: Print Helios version
       debug:
         msg: "{{ helios_version.stdout }}"
       when: helios_version.rc == 0
 
-    # 9. Create Data Directory for Helios
     - name: Create data directory for Helios
       file:
         path: "{{ helios_data_dir }}"
@@ -79,7 +61,6 @@
         group: ubuntu
         mode: '0755'
 
-    # 10. Create Systemd Service File for Helios
     - name: Create systemd service file for Helios
       copy:
         dest: "/etc/systemd/system/{{ helios_service_name }}.service"
@@ -92,8 +73,9 @@
           Type=simple
           User=ubuntu
           WorkingDirectory={{ helios_data_dir }}
-          ExecStart=/usr/local/bin/helios \
+          ExecStart=/home/ubuntu/.helios/bin/helios \
             --network {{ helios_network }} \
+            --fallback {{ helios_fall_back }} \
             --consensus-rpc {{ helios_consensus_rpc }} \
             --execution-rpc {{ helios_execution_rpc }} \
             --checkpoint {{ helios_checkpoint }} \
@@ -109,12 +91,10 @@
       notify:
         - Reload systemd
 
-    # 11. Reload Systemd Daemon
     - name: Reload systemd daemon
       systemd:
         daemon_reload: yes
 
-    # 12. Enable and Start Helios Service
     - name: Enable and start Helios service
       systemd:
         name: "{{ helios_service_name }}"
