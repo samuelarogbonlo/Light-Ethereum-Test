@@ -66,9 +66,9 @@
 
           [Service]
           Type=simple
-          User=ubuntu
+          User=root
           WorkingDirectory={{ helios_data_dir }}
-          ExecStart={{ helios_binary_path }} \
+          ExecStart=sudo {{ helios_binary_path }} \
             --network {{ helios_network }} \
             --fallback {{ helios_fall_back }} \
             --consensus-rpc {{ helios_consensus_rpc }} \
