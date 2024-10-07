@@ -57,6 +57,7 @@
         mode: '0755'
 
     - name: Create systemd service file for Helios
+      become: yes
       copy:
         dest: "/etc/systemd/system/{{ helios_service_name }}.service"
         content: |
