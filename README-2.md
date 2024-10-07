@@ -26,6 +26,7 @@ This project is to provide infrastructure as code (IaC) for an Ethereum Light Cl
 - MUST use Ansible to provision the infrastructure.
     - R3: List the dependencies for the Ethereum Light Client that you will need to provision.
     > **_Answer_**
+    
     > The dependencies are as follows:
     > - System packages like curl, wget, unzip.
     > - Helios Ethereum Light Client
