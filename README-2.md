@@ -5,12 +5,11 @@ This project is to provide infrastructure as code (IaC) for an Ethereum Light Cl
 
 ### Requirements
 - Machine Dependencies: Ubuntu 20.04 LTS, AWS CLI, Helios Ethereum Light Client,
-- Added Technologies: CDKTF, Ansible, Docker.
+- Added Technologies: CDKTF, Ansible.
 - Configuration Details: AWS VPC, EC2 instance configurations, Holesky Network, Consensus and Execution RPC endpoints, 8345 RPC Port configuration, Security Groups, Systemd service.
 
 ## Implementation
-- Run `npm install` to install the dependencies.
-- Run `cdktf deploy` to deploy the infrastructure.
+- Run `cdktf deploy --auto-approve` to deploy the infrastructure from the root directory.
 
 **Requirements for Ethereum Light Client Infrastructure**
 - MUST provision an EC2 instance with an Ethereum Light Client running as a systemctl service.
@@ -28,18 +27,12 @@ This project is to provide infrastructure as code (IaC) for an Ethereum Light Cl
     > **_Answer_**
 
     > The dependencies are as follows:
-    > - System packages like curl, wget, unzip.
-    > - Helios Ethereum Light Client
-    > - Systemd service for the Ethereum Light Client
-    > - JSON-RPC API for the Ethereum Light Client
-    > - Ansible role
-    > - Terraform CDK
-    > - AWS CLI
+    > - JSON-RPC API for the Ethereum Light Client for execution and consensus layers.
 
 - MAY use any Ethereum Light Client.
     - R4: What Ethereum Light Client will you use? Why?
     > **_Answer_**
-    > - I used Helios Ethereum Light Client. It is a lightweight Ethereum Light Client that is easy to set up and use. It is also open-source and has a large community of developers. Also, many other Ethereum Light Clients options have deprecated or are not actively maintained. Helios allows for JSON-RPC exposure, fast syncing and operates in s trustless mode.
+    > - I used Helios Ethereum Light Client. It is a lightweight Ethereum Light Client that is easy to set up and use. It is also open-source and has a large community of developers. Helios allows for JSON-RPC exposure, fast syncing and operates in s trustless mode.
 
 - MUST expose ETH JSON-RPC on port 8545 to the public.
     - R5: What configurations will you need to manage to expose the JSON-RPC?
@@ -54,6 +47,7 @@ This project is to provide infrastructure as code (IaC) for an Ethereum Light Cl
     > - **Prometheus:** Ideal for collecting metrics from both the system (EC2 instance) and the Helios client. It's lightweight, integrates well with cloud environments like AWS, and can monitor CPU, memory, and network usage alongside custom application metrics.
     > - **Grafana:** Provides a powerful, customizable dashboard for visualizing Prometheus metrics. It’s user-friendly and supports alerts, helping you monitor the performance and availability of the Ethereum Light Client in real-time.
     > - **PagerDuty:** This integrates well with Prometheus for real-time alerting and incident management. It provides on-call scheduling, escalation policies, and multi-channel alerts (SMS, phone calls, emails, etc.), ensuring that critical issues like node downtime or performance degradation are quickly addressed.
+    > - **Loki:** This integrates well with our setup and we can us e it to manage logs generally.
 
 - MAY someday need to provide a CI/CD pipeline for the infrastructure.
     - R7: What CI/CD pipeline would you use? Why?
@@ -178,14 +172,14 @@ You are informed that you must update the infrastructure developed herein to app
 > **_Answer_**
 > - This can be done in multiple ways including exploring blue/green deployments, CI/CD pipeline for the infrastructure, and rolling updates. We can also implement a rolling update strategy where you gradually replace instances in a group with new instances, ensuring that the new instances are healthy before retiring the old ones.
 
-Specifically in the case of our own infrastructure, a CI/CD pipeline for the infrastructure can be implemented to automate the process of updating the infrastructure. This pipeline can include steps for testing, building, and deploying the infrastructure. This would allow for a more controlled and automated process of updating the infrastructure. We can also add versioning and release notes to the infrastructure to track changes and provide context for updates.
+> - Specifically in the case of our own infrastructure, a CI/CD pipeline for the infrastructure can be implemented to automate the process of updating the infrastructure. This pipeline can include steps for testing, building, and deploying the infrastructure. This would allow for a more controlled and automated process of updating the infrastructure. We can also add versioning and release notes to the infrastructure to track changes and provide context for updates.
 
 ### Conceptual Questions about the Blockchain
 
 #### B1
 Explain what an Ethereum Light Client is and how it would be used. What additional infrastructure might you need to support typical use cases?
 > **_Answer_**
-> - An Ethereum Light Client is a lightweight version of a full Ethereum node that only stores a subset of the blockchain data. An Ethereum Light Client doesn't store the full blockchain, just the headers, making it lightweight and faster. You’d use it where resources are limited and to support it, you'd need full nodes for data sync, some RPC endpoints, and monitoring to ensure uptime.
+> - An Ethereum Light Client is a lightweight version of a full Ethereum node that only stores a subset of the blockchain data. An Ethereum Light Client doesn't store the full blockchain, just the headers, making it lightweight and faster. You’d use it where resources are limited and to support it, the additional infrastructure  you'd need is full nodes for data sync, some RPC endpoints, and monitoring to ensure uptime.
 
 #### B2
 You have deployed infrastructure for a delegated proof of stake (DPoS) blockchain. You identify that only a US-based validator nodes are producing blocks. What might be the cause?
