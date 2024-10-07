@@ -206,15 +206,13 @@ How might the infrastructure requirements for a blockchain node differ amongst t
 ## Key Design Decisions
 Some of the key design decisions in thie project is listed thus:
 
-1. Infrastructure as Code (IaC) with CDKTF
-Although CDKTF was proposed in the assesment, I also agree that it provides the ability to codify cloud infrastructure, ensuring consistent and repeatable deployments. This approach minimizes human errors, automates scaling, and provides flexibility to update infrastructure as requirements evolve with any choice of programming lanaguage.
+1. Infrastructure as Code (IaC) with CDKTF: Although CDKTF was proposed in the assesment, I also agree that it provides the ability to codify cloud infrastructure, ensuring consistent and repeatable deployments. This approach minimizes human errors, automates scaling, and provides flexibility to update infrastructure as requirements evolve with any choice of programming lanaguage.
 
-2. AWS EC2 for Compute Resources
+2. AWS EC2 for Compute Resources: EC2 offers flexible instance types, making it easy to scale resources based on the load. Free Tier-eligible instances (e.g., t2.micro) are used for development, while larger instances can be allocated for production environments to ensure smooth blockchain syncing and API performance.
 
-Rationale: EC2 offers flexible instance types, making it easy to scale resources based on the load. Free Tier-eligible instances (e.g., t2.micro) are used for development, while larger instances can be allocated for production environments to ensure smooth blockchain syncing and API performance.
+3. VPC with Subnets and Route Tables: This provides network isolation, ensuring that sensitive resources are protected. Public subnets are used to expose the JSON-RPC to clients, and route tables ensure secure routing through an Internet Gateway.
 
-3. VPC with Subnets and Route Tables
-This provides network isolation, ensuring that sensitive resources are protected. Public subnets are used to expose the JSON-RPC to clients, and route tables ensure secure routing through an Internet Gateway.
+4. Security Considerations: Implemented security groups to restrict inbound traffic to essential ports (e.g., port 8545 for JSON-RPC, port 22 for SSH). This reduces the attack surface, ensuring only authorized traffic reaches the instances. Additionally, private key management is handled locally, with strict access control to minimize the risk of unauthorized access to the AWS instances.
 
-4. Security Considerations
-Implemented security groups to restrict inbound traffic to essential ports (e.g., port 8545 for JSON-RPC, port 22 for SSH). This reduces the attack surface, ensuring only authorized traffic reaches the instances. Additionally, private key management is handled locally, with strict access control to minimize the risk of unauthorized access to the AWS instances.
+## License
+By contributing, you agree your contributions will be licensed under the [MIT License](link-to-license).
