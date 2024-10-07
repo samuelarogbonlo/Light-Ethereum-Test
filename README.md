@@ -13,7 +13,7 @@ This project is to provide infrastructure as code (IaC) for an Ethereum Light Cl
 - You will also need to generate a public, private key pair to use with the EC2 instances. By default, the abstractions in the current code are set up to handle key operations for keyparis stored with a private key at `~/.ssh/mvlbs/aws_main` and a public key at `~/.ssh/mvlbs/aws_main.pub`. You may alter this if you see fit and put the right name in `node.ts`.
 - Run `cdktf deploy --auto-approve` to deploy the infrastructure from the root directory.
 
-**Requirements for Ethereum Light Client Infrastructure**
+## Requirements for Ethereum Light Client Infrastructure
 - MUST provision an EC2 instance with an Ethereum Light Client running as a systemctl service.
 - MUST use Terraform CDK to define the infrastructure.
     - R1: What os will you use for the EC2 instance? Why?
@@ -59,7 +59,7 @@ This project is to provide infrastructure as code (IaC) for an Ethereum Light Cl
     > - **GitHub Actions:** Since the project likely resides in a GitHub repository, GitHub Actions provides seamless integration for automating testing, building, and deploying the Ethereum Light Client infrastructure. It supports a wide variety of workflows, including testing Ansible playbooks, deploying Terraform configurations, and integrating with AWS services.
     > - **Terraform Cloud:** It integrates well with the CDKTF to provision and manage your AWS resources, which of course will ensure consistency and scalability. It provides reliable state management for your infrastructure, avoiding issues like state file conflicts.
 
-### Warm-up Programming Tasks
+## Warm-up Programming Tasks
 
 #### P1
 The below method provides an AMI image for an EC2 instance by region. Errors resulting from this lookup could be made more clear. How?
@@ -77,7 +77,7 @@ export function getAmiIdByRegion(region: string): string {
 }
 ```
 
-### IaC Implementation Tasks
+## IaC Implementation Tasks
 
 #### I1
 Our custom scope provides a method `getAwsVpc`. Explain how this method works and correct the faulty CIDR block.
@@ -145,7 +145,7 @@ Our custom scope provides a method `getNextAvailableSubnet`. First, explain how 
 ## Other Tasks
 For I3 - I6, please refer to the code base as they have all being addressed.
 
-### Cloud Infrastructure Questions
+## Cloud Infrastructure Questions
 
 #### C1
 Explain the role of an Internet Gateway.
@@ -176,7 +176,7 @@ You are informed that you must update the infrastructure developed herein to app
 
 > - Specifically in the case of our own infrastructure, a CI/CD pipeline for the infrastructure can be implemented to automate the process of updating the infrastructure. This pipeline can include steps for testing, building, and deploying the infrastructure. This would allow for a more controlled and automated process of updating the infrastructure. We can also add versioning and release notes to the infrastructure to track changes and provide context for updates.
 
-### Conceptual Questions about the Blockchain
+## Conceptual Questions about the Blockchain
 
 #### B1
 Explain what an Ethereum Light Client is and how it would be used. What additional infrastructure might you need to support typical use cases?
@@ -201,7 +201,6 @@ How might the infrastructure requirements for a blockchain node differ amongst t
 > - PoS: Lighter on computation but requires reliable internet and staked assets.
 > - DPoS: Similar to PoS but also needs strong networking for handling voting and consensus.
 > - Proof of Space: Focuses on storage capacity over compute power
-
 
 ## Key Design Decisions
 Some of the key design decisions in thie project is listed thus:
