@@ -26,7 +26,7 @@ This project is to provide infrastructure as code (IaC) for an Ethereum Light Cl
 - MUST use Ansible to provision the infrastructure.
     - R3: List the dependencies for the Ethereum Light Client that you will need to provision.
     > **_Answer_**
-    
+
     > The dependencies are as follows:
     > - System packages like curl, wget, unzip.
     > - Helios Ethereum Light Client
@@ -205,3 +205,20 @@ How might the infrastructure requirements for a blockchain node differ amongst t
 > - PoS: Lighter on computation but requires reliable internet and staked assets.
 > - DPoS: Similar to PoS but also needs strong networking for handling voting and consensus.
 > - Proof of Space: Focuses on storage capacity over compute power
+
+
+## Key Design Decisions
+Some of the key design decisions in thie project is listed thus:
+
+1. Infrastructure as Code (IaC) with CDKTF
+Although CDKTF was proposed in the assesment, I also agree that it provides the ability to codify cloud infrastructure, ensuring consistent and repeatable deployments. This approach minimizes human errors, automates scaling, and provides flexibility to update infrastructure as requirements evolve with any choice of programming lanaguage.
+
+2. AWS EC2 for Compute Resources
+
+Rationale: EC2 offers flexible instance types, making it easy to scale resources based on the load. Free Tier-eligible instances (e.g., t2.micro) are used for development, while larger instances can be allocated for production environments to ensure smooth blockchain syncing and API performance.
+
+3. VPC with Subnets and Route Tables
+This provides network isolation, ensuring that sensitive resources are protected. Public subnets are used to expose the JSON-RPC to clients, and route tables ensure secure routing through an Internet Gateway.
+
+4. Security Considerations
+Implemented security groups to restrict inbound traffic to essential ports (e.g., port 8545 for JSON-RPC, port 22 for SSH). This reduces the attack surface, ensuring only authorized traffic reaches the instances. Additionally, private key management is handled locally, with strict access control to minimize the risk of unauthorized access to the AWS instances.
