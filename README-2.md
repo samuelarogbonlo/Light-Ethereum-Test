@@ -15,13 +15,12 @@ This project is to provide infrastructure as code (IaC) for an Ethereum Light Cl
 **Requirements for Ethereum Light Client Infrastructure**
 - MUST provision an EC2 instance with an Ethereum Light Client running as a systemctl service.
 - MUST use Terraform CDK to define the infrastructure.
-    - R1: What os will you use for the EC2 instance? Why?
-
+- R1: What os will you use for the EC2 instance? Why?
     > **_Ans_**
     > I used Ubuntu 20.04 LTS. Most blockchain infrastructure and Ethereum-related software are optimized for Linux. Also, linux is highly customizable and secure which makes it ideal for automated setups, especially in DevOps and cloud environments
 
     - R2: What instance type will you use? Why?
-    
+
     > **_Ans_**
     > I used t2.micro. It is the smallest instance type available on AWS and it is free tier eligible. It is suitable for testing and development purposes.
 
