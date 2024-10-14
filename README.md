@@ -1,11 +1,8 @@
 # Light ETH Infrastructure 
 
 ## Overview
-This project is to provide infrastructure as code (IaC) for an Ethereum Light Client, deploy then answer some conceptual questions.
+This project is to provide infrastructure as code (IaC) for an Ethereum Light Client.
 
-### Requirements
-- Machine Dependencies: Ubuntu 20.04 LTS, AWS CLI, Helios Ethereum Light Client,
-- Added Technologies: CDKTF, Ansible.
 - Configuration Details: AWS VPC, EC2 instance configurations, Holesky Network, Consensus and Execution RPC endpoints, 8345 RPC Port configuration, Security Groups, Systemd service.
 
 ## Implementation
