@@ -1,4 +1,4 @@
-# Contributing to [Project Name]
+# Contribution
 
 First off, thank you for considering contributing to this project! Your time and effort are greatly appreciated. The following guidelines will help you understand the contribution process.
 
